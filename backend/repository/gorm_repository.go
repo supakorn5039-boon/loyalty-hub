@@ -102,10 +102,13 @@ func (r *couponRepository) Create(ctx context.Context, coupon *domain.Coupon) er
 func (r *couponRepository) FindByCodeOrToken(ctx context.Context, code string, token string) (*domain.Coupon, error) {
 	var coupon domain.Coupon
 	query := r.db.WithContext(ctx).Where("status = ?", "Active")
-	if code != "" {
-		query = query.Where("code = ?", code)
+
+	if code != "" && token != "" {
+		query = query.Where("code = ? OR qr_code_token = ?", code, token)
+	} else if code != "" {
+		query = query.Where("code = ? OR qr_code_token = ?", code, code)
 	} else if token != "" {
-		query = query.Where("qr_code_token = ?", token)
+		query = query.Where("code = ? OR qr_code_token = ?", token, token)
 	} else {
 		return nil, errors.New("neither code nor token specified")
 	}
