@@ -86,4 +86,3 @@ func LoadConfig() *Config {
 		AppSecret:    appSecret,
 	}
 }
-

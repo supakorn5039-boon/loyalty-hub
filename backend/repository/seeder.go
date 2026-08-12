@@ -58,7 +58,6 @@ func AutoMigrateAndSeed(db *gorm.DB) {
 func seedData(db *gorm.DB) {
 	log.Println("🌱 Seeding initial mock data into LoyaltyHub database...")
 
-
 	// Seed Users
 	defaultUser := domain.User{
 		ID:             "usr_demo_711",

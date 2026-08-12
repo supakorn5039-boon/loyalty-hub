@@ -55,7 +55,6 @@ func main() {
 		}
 	}
 
-
 	// Default: AutoMigrate & Seed if empty
 	repository.AutoMigrateAndSeed(db)
 	database.InitRedis(cfg)
@@ -86,4 +85,3 @@ func main() {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
-
