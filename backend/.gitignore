@@ -1,0 +1,11 @@
+# Backend local secrets & config
+.env
+config.ini
+
+# SQLite local DB
+*.db
+*.db-journal
+
+# Go binaries
+loyaltyhub-api
+*.test

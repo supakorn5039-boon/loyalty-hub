@@ -1,0 +1,77 @@
+name: loyaltyhub-production-stack
+
+services:
+  # 1. PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: loyaltyhub-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-loyalty_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loyalty_password}
+      POSTGRES_DB: ${POSTGRES_DB:-loyaltyhub_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-loyalty_user} -d ${POSTGRES_DB:-loyaltyhub_db}"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  # 2. Redis Cache Service for Dynamic QR & OTP Tokens
+  redis:
+    image: redis:7-alpine
+    container_name: loyaltyhub-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  # 3. Golang REST API Backend Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: loyaltyhub-backend
+    restart: always
+    environment:
+      PORT: "8080"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-loyalty_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loyalty_password}
+      POSTGRES_DB: ${POSTGRES_DB:-loyaltyhub_db}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      APP_SECRET: ${APP_SECRET:-prod-secret-vendor-key-change-me}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 4. React Vite Nginx Frontend SPA Server
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: loyaltyhub-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  redisdata:

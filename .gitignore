@@ -1,0 +1,52 @@
+# Environment & Secret files
+.env
+.env.local
+.env.*.local
+*.env
+config.ini
+
+# SQLite databases
+*.db
+*.db-journal
+*.sqlite
+
+# macOS system files
+.DS_Store
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.output/
+
+# Go / Backend binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+loyaltyhub-api
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker / Volume dumps
+*.sql
+*.dump
+
+# Playwright Test Outputs
+test-results/
+playwright-report/
+blob-report/
+e2e/screenshots/
+e2e/report/
+
+# Release Packages
+dist_release/
+
+
