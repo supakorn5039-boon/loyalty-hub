@@ -1,0 +1,11 @@
+name: loyaltyhub-frontend-standalone
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: loyaltyhub-frontend
+    ports:
+      - "80:80"
+    restart: always

@@ -1,4 +1,4 @@
-.PHONY: dev migrate seed fresh migrate-fresh migrate-force build test
+.PHONY: dev migrate seed fresh migrate-fresh migrate-force build test docker-up docker-down
 
 dev:
 	go run main.go
@@ -23,3 +23,9 @@ build:
 
 test:
 	go test -v ./...
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
