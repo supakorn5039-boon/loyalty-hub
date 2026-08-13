@@ -43,7 +43,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           onSelectUser(data.user);
           onClose();
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
           setErrorMsg(err.message || 'Login failed. Please check your credentials.');
         },
       }
@@ -60,7 +60,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           onSelectUser(data.user);
           onClose();
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
           setErrorMsg(err.message || 'Registration failed. Email might already exist.');
         },
       }
