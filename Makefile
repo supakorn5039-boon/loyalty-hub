@@ -40,4 +40,9 @@ prod-down:
 
 package:
 	@echo "📦 Packaging software for sale and vendor distribution..."
-	bash scripts/package-release.sh
+	rm -rf dist_release
+	mkdir -p dist_release/loyalty-hub-v1.0.0
+	cp -R backend frontend docker-compose.yml .env.example Makefile README.md VENDOR_HOSTING_GUIDE.md dist_release/loyalty-hub-v1.0.0/
+	rm -rf dist_release/loyalty-hub-v1.0.0/frontend/node_modules dist_release/loyalty-hub-v1.0.0/frontend/dist dist_release/loyalty-hub-v1.0.0/backend/loyaltyhub.db dist_release/loyalty-hub-v1.0.0/backend/loyaltyhub-api
+	cd dist_release && tar -czf loyalty-hub-v1.0.0-vendor-package.tar.gz loyalty-hub-v1.0.0
+	@echo "✅ SUCCESS! Release package generated at: dist_release/loyalty-hub-v1.0.0-vendor-package.tar.gz"
