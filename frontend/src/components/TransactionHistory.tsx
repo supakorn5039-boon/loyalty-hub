@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTransactions } from '../lib/api';
 import { History, ArrowUpRight, ArrowDownLeft, Gift } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { EmptyState } from './ui/EmptyState';
 
 interface TransactionHistoryProps {
   userId?: string;
@@ -49,6 +50,12 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ userId }
               <div key={i} className="h-16 bg-white border border-slate-200 rounded-xl animate-pulse" />
             ))}
           </div>
+        ) : transactions?.length === 0 ? (
+          <EmptyState
+            icon={History}
+            title="No transaction records"
+            description="Statement history will log all points earned from cashier scans and voucher redemptions."
+          />
         ) : (
           <div className="space-y-2.5">
             {transactions?.map((txn) => {

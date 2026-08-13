@@ -71,7 +71,7 @@ func (s *loyaltyService) GetAllUsers(ctx context.Context) ([]domain.User, error)
 func (s *loyaltyService) Register(ctx context.Context, req dto.AuthRegisterRequest) (*dto.AuthResponse, error) {
 	existing, _ := s.userRepo.FindByEmail(ctx, req.Email)
 	if existing != nil {
-		return nil, errors.New("email address is already registered")
+		return nil, domain.ErrEmailAlreadyExists
 	}
 
 	userID := "usr_" + domain.NewUUID()[:8]
@@ -122,12 +122,12 @@ func (s *loyaltyService) Register(ctx context.Context, req dto.AuthRegisterReque
 func (s *loyaltyService) Login(ctx context.Context, req dto.AuthLoginRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, errors.New("invalid email or password")
+		return nil, domain.ErrInvalidCredentials
 	}
 
 	// Check password (matching plaintext or demo user)
 	if user.PasswordHash != "" && user.PasswordHash != req.Password {
-		return nil, errors.New("invalid email or password")
+		return nil, domain.ErrInvalidCredentials
 	}
 
 	token := fmt.Sprintf("JWT-TOKEN-%s-%d", user.ID, time.Now().Unix())
@@ -146,20 +146,20 @@ func (s *loyaltyService) GetRewards(ctx context.Context, category string) ([]dom
 func (s *loyaltyService) RedeemReward(ctx context.Context, req dto.RedeemRewardRequest) (*dto.RedeemRewardResponse, error) {
 	user, err := s.userRepo.FindByID(ctx, req.UserID)
 	if err != nil {
-		return nil, errors.New("user profile not found")
+		return nil, domain.ErrUserNotFound
 	}
 
 	reward, err := s.rewardRepo.FindByID(ctx, req.RewardID)
 	if err != nil {
-		return nil, errors.New("reward item not found")
+		return nil, domain.ErrRewardNotFound
 	}
 
 	if user.PointsBalance < reward.PointsRequired {
-		return nil, fmt.Errorf("insufficient points. Required: %d, Available: %d", reward.PointsRequired, user.PointsBalance)
+		return nil, domain.ErrInsufficientPoints
 	}
 
 	if reward.Stock <= 0 {
-		return nil, errors.New("this reward is currently out of stock")
+		return nil, domain.ErrRewardOutOfStock
 	}
 
 	// Deduct points & update stock
@@ -260,12 +260,12 @@ func (s *loyaltyService) GenerateDynamicQR(ctx context.Context, userID string) (
 
 func (s *loyaltyService) ScanAndEarn(ctx context.Context, req dto.EarnPointsRequest) (*dto.EarnPointsResponse, error) {
 	if req.Amount <= 0 {
-		return nil, errors.New("purchase amount must be greater than zero")
+		return nil, domain.ErrInvalidAmount
 	}
 
 	user, err := s.userRepo.FindByID(ctx, req.UserID)
 	if err != nil {
-		return nil, errors.New("user profile not found")
+		return nil, domain.ErrUserNotFound
 	}
 
 	// Calculation rule: 1 point per ฿10 spent
@@ -314,13 +314,13 @@ func (s *loyaltyService) RedeemCouponScan(ctx context.Context, req dto.RedeemCou
 
 	coupon, err := s.couponRepo.FindByCodeOrToken(ctx, req.CouponCode, req.QRCodeToken)
 	if err != nil {
-		return nil, errors.New("active coupon not found or voucher has already been redeemed/expired")
+		return nil, domain.ErrCouponNotFound
 	}
 
 	if time.Now().After(coupon.ExpiresAt) {
 		coupon.Status = "Expired"
 		_ = s.couponRepo.Update(ctx, coupon)
-		return nil, errors.New("this coupon voucher has expired")
+		return nil, domain.ErrCouponExpired
 	}
 
 	now := time.Now()
@@ -364,7 +364,7 @@ func (s *loyaltyService) ClaimBirthdayReward(ctx context.Context, userID string)
 
 	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
-		return nil, errors.New("user not found")
+		return nil, domain.ErrUserNotFound
 	}
 
 	hasClaimed, err := s.transactionRepo.HasClaimedBirthday(ctx, userID)
@@ -372,7 +372,7 @@ func (s *loyaltyService) ClaimBirthdayReward(ctx context.Context, userID string)
 		return nil, fmt.Errorf("database query error: %w", err)
 	}
 	if hasClaimed {
-		return nil, errors.New("you have already claimed your birthday gift for this year!")
+		return nil, domain.ErrAlreadyClaimedBday
 	}
 
 	bonusPoints := 500

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useLogin, useRegister, useUsersList } from '../lib/api';
 import type { UserProfile } from '../types';
-import { X, LogIn, UserPlus, Sparkles, AlertCircle, ShieldCheck, Check } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { LogIn, UserPlus, Sparkles, AlertCircle, ShieldCheck, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ModalOverlay } from './ui/ModalOverlay';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -30,8 +31,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const loginMutation = useLogin();
   const registerMutation = useRegister();
   const { data: usersList } = useUsersList();
-
-  if (!isOpen) return null;
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,24 +67,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          className="relative w-full max-w-md bg-white rounded-3xl p-6 border border-slate-200 shadow-xl my-8 text-slate-900"
-        >
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          {/* Header */}
-          <div className="text-center mb-6">
+    <ModalOverlay isOpen={isOpen} onClose={onClose} maxWidth="md">
+      {/* Header */}
+      <div className="text-center mb-6">
             <div className="w-11 h-11 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-xs">
               <Sparkles className="w-5 h-5 text-emerald-400" />
             </div>
@@ -328,8 +312,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </button>
             </form>
           )}
-        </motion.div>
-      </div>
-    </AnimatePresence>
+    </ModalOverlay>
   );
 };

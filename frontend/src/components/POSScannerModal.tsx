@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, Store, CheckCircle, Sparkles, Ticket, Receipt } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Store, CheckCircle, Sparkles, Ticket, Receipt } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useScanAndEarn, useRedeemCouponScan } from '../lib/api';
 import { STORE_OPTIONS } from '../constants/constants';
+import { ModalOverlay } from './ui/ModalOverlay';
 
 interface POSScannerModalProps {
   isOpen: boolean;
@@ -23,8 +24,6 @@ export const POSScannerModal: React.FC<POSScannerModalProps> = ({
 
   const scanEarnMutation = useScanAndEarn();
   const scanRedeemMutation = useRedeemCouponScan();
-
-  if (!isOpen) return null;
 
   const handleEarnSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,28 +67,15 @@ export const POSScannerModal: React.FC<POSScannerModalProps> = ({
     setCouponCode('SLURP-FREE-2026');
   };
 
-  return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          className="relative w-full max-w-sm bg-white rounded-3xl p-6 border border-slate-200 shadow-xl text-slate-900"
-        >
-          {/* Close Button */}
-          <button
-            onClick={() => {
-              handleReset();
-              onClose();
-            }}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+  const handleClose = () => {
+    handleReset();
+    onClose();
+  };
 
-          {/* Header */}
-          <div className="flex items-center space-x-3 mb-4">
+  return (
+    <ModalOverlay isOpen={isOpen} onClose={handleClose} maxWidth="sm">
+      {/* Header */}
+      <div className="flex items-center space-x-3 mb-4">
             <div className="p-2.5 bg-slate-900 text-white rounded-2xl shadow-xs">
               <Store className="w-5 h-5 text-emerald-400" />
             </div>
@@ -306,8 +292,6 @@ export const POSScannerModal: React.FC<POSScannerModalProps> = ({
               </button>
             </form>
           )}
-        </motion.div>
-      </div>
-    </AnimatePresence>
+    </ModalOverlay>
   );
 };
