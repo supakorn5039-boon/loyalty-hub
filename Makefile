@@ -40,9 +40,11 @@ prod-down:
 
 package:
 	@echo "📦 Packaging software for sale and vendor distribution..."
-	rm -rf dist_release
-	mkdir -p dist_release/loyalty-hub-v1.0.0
-	cp -R backend frontend docker-compose.yml .env.example Makefile README.md VENDOR_HOSTING_GUIDE.md dist_release/loyalty-hub-v1.0.0/
-	rm -rf dist_release/loyalty-hub-v1.0.0/frontend/node_modules dist_release/loyalty-hub-v1.0.0/frontend/dist dist_release/loyalty-hub-v1.0.0/backend/loyaltyhub.db dist_release/loyalty-hub-v1.0.0/backend/loyaltyhub-api
-	cd dist_release && tar -czf loyalty-hub-v1.0.0-vendor-package.tar.gz loyalty-hub-v1.0.0
-	@echo "✅ SUCCESS! Release package generated at: dist_release/loyalty-hub-v1.0.0-vendor-package.tar.gz"
+	rm -rf /tmp/loyalty-hub-build
+	mkdir -p /tmp/loyalty-hub-build/loyalty-hub-v1.0.0
+	cp -R backend frontend docker-compose.yml .env.example Makefile README.md VENDOR_HOSTING_GUIDE.md /tmp/loyalty-hub-build/loyalty-hub-v1.0.0/
+	rm -rf /tmp/loyalty-hub-build/loyalty-hub-v1.0.0/frontend/node_modules /tmp/loyalty-hub-build/loyalty-hub-v1.0.0/frontend/dist /tmp/loyalty-hub-build/loyalty-hub-v1.0.0/backend/loyaltyhub.db /tmp/loyalty-hub-build/loyalty-hub-v1.0.0/backend/loyaltyhub-api
+	cd /tmp/loyalty-hub-build && tar -czf loyalty-hub-v1.0.0-vendor-package.tar.gz loyalty-hub-v1.0.0
+	mv /tmp/loyalty-hub-build/loyalty-hub-v1.0.0-vendor-package.tar.gz ./loyalty-hub-v1.0.0-vendor-package.tar.gz
+	rm -rf /tmp/loyalty-hub-build
+	@echo "✅ SUCCESS! Release package generated at: ./loyalty-hub-v1.0.0-vendor-package.tar.gz"
